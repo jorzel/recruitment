@@ -1,4 +1,8 @@
+import uuid
+from typing import Any, Dict
+
 from domain.events.candidate import (
+    AddedCandidateEvent,
     InvitedCandidateEvent,
     MovedToStandbyCandidateEvent,
     RejectedCandidateEvent,
@@ -27,18 +31,16 @@ class Candidate:
         STANDBY = "STANDBY"
         INVITED = "INVITED"  # invited for the next recruitment stage
 
-    def __init__(
-        self,
-        candidate_id: int,
-        score: float,
-        profile_id: int,
-        score_thresh: float = SCORE_THRESH,
-    ):
-        self.id = candidate_id
+    def __init__(self, score_thresh: float = SCORE_THRESH):
+        self.id = uuid.uuid1()
         self.SCORE_THRESH = score_thresh
-        self.score = score
-        self.profile_id = profile_id
+        self.status: str
+        self.score: float
+
+    def add(self, profile: Dict[str, Any], score: float):
         self.status = self.Status.ADDED
+        self.score = score
+        return AddedCandidateEvent(candidate_id=self.id, profile=profile, score=score)
 
     def invite(self) -> None:
         if self.status not in (self.Status.STANDBY, self.Status.ADDED):
