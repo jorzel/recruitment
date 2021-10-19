@@ -21,8 +21,13 @@ class Candidate:
         INVITED = "INVITED"  # invited for the next recruitment stage
 
     def __init__(
-        self, score: float, profile_id: int, score_thresh: float = SCORE_THRESH
+        self,
+        candidate_id: int,
+        score: float,
+        profile_id: int,
+        score_thresh: float = SCORE_THRESH,
     ):
+        self.id = candidate_id
         self.SCORE_THRESH = score_thresh
         self.score = score
         self.profile_id = profile_id
