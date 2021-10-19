@@ -1,3 +1,10 @@
+from domain.events.candidate import (
+    InvitedCandidateEvent,
+    MovedToStandbyCandidateEvent,
+    RejectedCandidateEvent,
+)
+
+
 class CandidateInvalidAction(Exception):
     pass
 
@@ -39,12 +46,15 @@ class Candidate:
         if self.score < self.SCORE_THRESH:
             raise CandidateInvalidAction()
         self.status = self.Status.INVITED
+        return InvitedCandidateEvent(candidate_id=self.id)
 
     def move_to_standby(self) -> None:
         if self.status == self.Status.ADDED:
             self.status = self.Status.STANDBY
         else:
             raise CandidateInvalidAction()
+        return MovedToStandbyCandidateEvent(candidate_id=self.id)
 
     def reject(self) -> None:
         self.status = self.Status.REJECTED
+        return RejectedCandidateEvent(candidate_id=self.id)

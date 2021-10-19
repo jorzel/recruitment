@@ -1,6 +1,13 @@
+from unittest.mock import ANY
+
 import pytest
 
 from domain.entities.candidate import SCORE_THRESH, Candidate, CandidateInvalidAction
+from domain.events.candidate import (
+    InvitedCandidateEvent,
+    MovedToStandbyCandidateEvent,
+    RejectedCandidateEvent,
+)
 
 
 @pytest.fixture
@@ -21,16 +28,20 @@ def candidate_factory():
 def test_candidate_move_to_standby(candidate_factory):
     candidate = candidate_factory(1, score=82.0)
 
-    candidate.move_to_standby()
+    event = candidate.move_to_standby()
 
+    assert event == MovedToStandbyCandidateEvent(
+        candidate_id=candidate.id, timestamp=ANY
+    )
     assert candidate.status == Candidate.Status.STANDBY
 
 
 def test_candidate_reject_when_already_invited(candidate_factory):
     candidate = candidate_factory(1, status=Candidate.Status.INVITED)
 
-    candidate.reject()
+    event = candidate.reject()
 
+    assert event == RejectedCandidateEvent(candidate_id=candidate.id, timestamp=ANY)
     assert candidate.status == Candidate.Status.REJECTED
 
 
@@ -49,6 +60,8 @@ def test_candidate_invite_when_score_below_thresh_throw_exception(candidate_fact
 
 def test_candidate_invite_when_score_exceed_thresh(candidate_factory):
     candidate = candidate_factory(1, score=87.0, score_thresh=80.0)
-    candidate.invite()
 
+    event = candidate.invite()
+
+    assert event == InvitedCandidateEvent(candidate_id=candidate.id, timestamp=ANY)
     assert candidate.status == Candidate.Status.INVITED
