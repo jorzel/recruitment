@@ -1,6 +1,7 @@
 import uuid
 from typing import Any, Dict
 
+from domain.events.base import DomainEvent
 from domain.events.candidate import (
     AddedCandidateEvent,
     InvitedCandidateEvent,
@@ -10,6 +11,10 @@ from domain.events.candidate import (
 
 
 class CandidateInvalidAction(Exception):
+    pass
+
+
+class UnrecognizedEvent(Exception):
     pass
 
 
@@ -37,26 +42,49 @@ class Candidate:
         self.status: str
         self.score: float
 
+    def apply(self, event: DomainEvent):
+        if isinstance(event, AddedCandidateEvent):
+            self._add(event)
+        elif isinstance(event, InvitedCandidateEvent):
+            self._invite(event)
+        elif isinstance(event, MovedToStandbyCandidateEvent):
+            self._move_to_standby(event)
+        elif isinstance(event, RejectedCandidateEvent):
+            self._reject(event)
+        else:
+            raise UnrecognizedEvent()
+        return event
+
     def add(self, profile: Dict[str, Any], score: float):
+        return self.apply(
+            AddedCandidateEvent(candidate_id=self.id, profile=profile, score=score)
+        )
+
+    def _add(self, event: AddedCandidateEvent):
         self.status = self.Status.ADDED
-        self.score = score
-        return AddedCandidateEvent(candidate_id=self.id, profile=profile, score=score)
+        self.score = event.score
 
     def invite(self) -> None:
+        return self.apply(InvitedCandidateEvent(candidate_id=self.id))
+
+    def _invite(self, event: InvitedCandidateEvent):
         if self.status not in (self.Status.STANDBY, self.Status.ADDED):
             raise CandidateInvalidAction()
         if self.score < self.SCORE_THRESH:
             raise CandidateInvalidAction()
         self.status = self.Status.INVITED
-        return InvitedCandidateEvent(candidate_id=self.id)
 
     def move_to_standby(self) -> None:
+        return self.apply(MovedToStandbyCandidateEvent(candidate_id=self.id))
+
+    def _move_to_standby(self, event: MovedToStandbyCandidateEvent):
         if self.status == self.Status.ADDED:
             self.status = self.Status.STANDBY
         else:
             raise CandidateInvalidAction()
-        return MovedToStandbyCandidateEvent(candidate_id=self.id)
 
     def reject(self) -> None:
+        return self.apply(RejectedCandidateEvent(candidate_id=self.id))
+
+    def _reject(self, event: RejectedCandidateEvent):
         self.status = self.Status.REJECTED
-        return RejectedCandidateEvent(candidate_id=self.id)
