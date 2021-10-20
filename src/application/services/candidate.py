@@ -13,7 +13,7 @@ class CandidateManagementService:
         self._candidate_repository = candidate_repository
 
     def add(self, profile: Dict[str, Any], score: float) -> Candidate:
-        candidate = Candidate()
+        candidate = Candidate(events=[])
         event = candidate.add(profile, score)
         self._candidate_repository.add(candidate)
         self._event_publisher.publish([event])

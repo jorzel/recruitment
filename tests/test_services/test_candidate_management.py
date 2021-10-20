@@ -1,7 +1,7 @@
 import pytest
 
 from application.services.candidate import CandidateManagementService
-from domain.entities.candidate import SCORE_THRESH, Candidate
+from domain.entities.candidate import Candidate
 from domain.projections.candidate import CandidateProjection
 from infrastructure.db.memory.repositories.candidate import MemoryCandidateRepository
 from infrastructure.db.memory.repositories.candidate_projection import (
@@ -18,25 +18,6 @@ def candidate_projection_factory():
         return projection
 
     return _candidate_projection_factory
-
-
-@pytest.fixture
-def candidate_factory():
-    def _candidate_factory(
-        repository, status=None, profile=None, score=90.0, score_thresh=SCORE_THRESH
-    ):
-        if not profile:
-            profile = {"test": 1}
-        candidate = Candidate(score_thresh=score_thresh)
-        if not status:
-            status = Candidate.Status.ADDED
-        candidate.status = status
-        candidate.profile = profile
-        candidate.score = score
-        repository.add(candidate)
-        return candidate
-
-    return _candidate_factory
 
 
 def test_candidate_management_add():
@@ -66,7 +47,7 @@ def test_candidate_management_move_to_standby(
     candidate_repository = MemoryCandidateRepository()
     candidate_projection_repository = MemoryCandidateProjectionRepository()
     event_publisher = LocalEventPublisher(candidate_projection_repository)
-    candidate = candidate_factory(candidate_repository)
+    candidate = candidate_factory(repository=candidate_repository)
     projection = candidate_projection_factory(
         candidate_projection_repository, candidate.id
     )
@@ -85,7 +66,9 @@ def test_candidate_management_reject(candidate_factory, candidate_projection_fac
     candidate_repository = MemoryCandidateRepository()
     candidate_projection_repository = MemoryCandidateProjectionRepository()
     event_publisher = LocalEventPublisher(candidate_projection_repository)
-    candidate = candidate_factory(candidate_repository, status=Candidate.Status.ADDED)
+    candidate = candidate_factory(
+        repository=candidate_repository, status=Candidate.Status.ADDED
+    )
     projection = candidate_projection_factory(
         candidate_projection_repository, candidate.id
     )
@@ -106,7 +89,7 @@ def test_candidate_invite_when_score_exceed_thresh(
     candidate_repository = MemoryCandidateRepository()
     candidate_projection_repository = MemoryCandidateProjectionRepository()
     event_publisher = LocalEventPublisher(candidate_projection_repository)
-    candidate = candidate_factory(candidate_repository)
+    candidate = candidate_factory(repository=candidate_repository)
     projection = candidate_projection_factory(
         candidate_projection_repository, candidate.id
     )

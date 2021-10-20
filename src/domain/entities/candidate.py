@@ -1,5 +1,5 @@
 import uuid
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from domain.events.base import DomainEvent
 from domain.events.candidate import (
@@ -36,11 +36,13 @@ class Candidate:
         STANDBY = "STANDBY"
         INVITED = "INVITED"  # invited for the next recruitment stage
 
-    def __init__(self, score_thresh: float = SCORE_THRESH):
+    def __init__(self, events: List[DomainEvent], score_thresh: float = SCORE_THRESH):
         self.id = uuid.uuid1()
         self.SCORE_THRESH = score_thresh
         self.status: str
         self.score: float
+        for event in events:
+            self.apply(event)
 
     def apply(self, event: DomainEvent):
         if isinstance(event, AddedCandidateEvent):
@@ -55,7 +57,7 @@ class Candidate:
             raise UnrecognizedEvent()
         return event
 
-    def add(self, profile: Dict[str, Any], score: float):
+    def add(self, profile: Dict[str, Any], score: float) -> AddedCandidateEvent:
         return self.apply(
             AddedCandidateEvent(candidate_id=self.id, profile=profile, score=score)
         )
@@ -64,7 +66,7 @@ class Candidate:
         self.status = self.Status.ADDED
         self.score = event.score
 
-    def invite(self) -> None:
+    def invite(self) -> InvitedCandidateEvent:
         return self.apply(InvitedCandidateEvent(candidate_id=self.id))
 
     def _invite(self, event: InvitedCandidateEvent):
@@ -74,7 +76,7 @@ class Candidate:
             raise CandidateInvalidAction()
         self.status = self.Status.INVITED
 
-    def move_to_standby(self) -> None:
+    def move_to_standby(self) -> MovedToStandbyCandidateEvent:
         return self.apply(MovedToStandbyCandidateEvent(candidate_id=self.id))
 
     def _move_to_standby(self, event: MovedToStandbyCandidateEvent):
@@ -83,7 +85,7 @@ class Candidate:
         else:
             raise CandidateInvalidAction()
 
-    def reject(self) -> None:
+    def reject(self) -> RejectedCandidateEvent:
         return self.apply(RejectedCandidateEvent(candidate_id=self.id))
 
     def _reject(self, event: RejectedCandidateEvent):

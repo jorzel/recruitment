@@ -1,7 +1,8 @@
 # recruitment
 Playground app modelling candidate simple path in a recruitment using Event Sourcing + CQRS
 
-Command path is represented by `Candidate` aggregate.
+Command path is represented by `Candidate` aggregate. The aggregate is build on
+streams of sequential events, that are persisted (instead persisting state).
 Query path is represented by `CandidateProjection` read model.
 
 Read model can be synchronized using:
