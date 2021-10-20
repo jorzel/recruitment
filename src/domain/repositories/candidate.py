@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 
+from domain.entities.candidate import Candidate
+
 
 class CandidateRepository(ABC):
     """
@@ -7,7 +9,7 @@ class CandidateRepository(ABC):
     """
 
     @abstractmethod
-    def get(self, candidate_id):
+    def get(self, candidate_id: str):
         pass
 
     @abstractmethod
@@ -15,5 +17,5 @@ class CandidateRepository(ABC):
         pass
 
     @abstractmethod
-    def add(self, candidate):
+    def add(self, candidate: Candidate):
         pass

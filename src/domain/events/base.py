@@ -1,5 +1,7 @@
 from dataclasses import asdict, dataclass
-from typing import Dict
+from typing import Any, Dict
+
+SerializedEvent = Dict[str, Any]
 
 
 @dataclass(frozen=True)

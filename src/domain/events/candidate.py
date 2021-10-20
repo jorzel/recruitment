@@ -7,26 +7,31 @@ from .base import DomainEvent
 
 @dataclass(frozen=True)
 class CandidateEvent(DomainEvent):
-    candidate_id: int
+    candidate_id: str
     timestamp: datetime = datetime.utcnow()
+
+    @property
+    def name(self) -> str:
+        return self.__class__.__name__
 
 
 @dataclass(frozen=True)
 class AddedCandidateEvent(DomainEvent):
-    name = "added_candidate"
-    candidate_id: int
+    name = "AddedCandidateEvent"
+
+    candidate_id: str
     profile: Dict[str, Any]
     score: float
     timestamp: datetime = datetime.utcnow()
 
 
 class RejectedCandidateEvent(CandidateEvent):
-    name = "rejected_candidate"
+    name = "RejectedCandidateEvent"
 
 
 class MovedToStandbyCandidateEvent(CandidateEvent):
-    name = "moved_to_standby_candidate"
+    name = "MovedToStandbyCandidateEvent"
 
 
 class InvitedCandidateEvent(CandidateEvent):
-    name = "invited_candidate"
+    name = "InvitedCandidateEvent"

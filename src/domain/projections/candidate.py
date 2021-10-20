@@ -4,6 +4,10 @@ from ..entities.candidate import Candidate
 
 
 class CandidateProjection:
+    """
+    Read model that is build upon events dispatched by :class:`Candidate` aggregate
+    """
+
     def __init__(self, candidate_id: int):
         self.candidate_id = candidate_id
         self.score = None

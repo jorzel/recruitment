@@ -1,6 +1,6 @@
 import logging
-from typing import Any, Dict
 
+from domain.events.base import SerializedEvent
 from domain.events.candidate import (
     AddedCandidateEvent,
     InvitedCandidateEvent,
@@ -18,7 +18,8 @@ class CandidateProjectionExist(Exception):
 
 
 def handle_added_candidate(
-    candidate_projection_repository: CandidateProjectionRepository, event: [str, Any]
+    candidate_projection_repository: CandidateProjectionRepository,
+    event: SerializedEvent,
 ):
     logger.info(f"Handling {event}")
     if candidate_projection_repository.get(event["candidate_id"]):
@@ -30,7 +31,7 @@ def handle_added_candidate(
 
 def handle_rejected_candidate(
     candidate_projection_repository: CandidateProjectionRepository,
-    event: Dict[str, Any],
+    event: SerializedEvent,
 ) -> None:
     logger.info(f"Handling {event}")
     candidate_projection = candidate_projection_repository.get(event["candidate_id"])
@@ -39,7 +40,7 @@ def handle_rejected_candidate(
 
 def handle_moved_to_standby_candidate(
     candidate_projection_repository: CandidateProjectionRepository,
-    event: Dict[str, Any],
+    event: SerializedEvent,
 ) -> None:
     logger.info(f"Handling {event}")
     candidate_projection = candidate_projection_repository.get(event["candidate_id"])
@@ -48,7 +49,7 @@ def handle_moved_to_standby_candidate(
 
 def handle_invited_candidate(
     candidate_projection_repository: CandidateProjectionRepository,
-    event: Dict[str, Any],
+    event: SerializedEvent,
 ) -> None:
     logger.info(f"Handling {event}")
     candidate_projection = candidate_projection_repository.get(event["candidate_id"])

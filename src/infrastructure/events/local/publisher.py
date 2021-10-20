@@ -11,8 +11,7 @@ class LocalEventPublisher(EventPublisher):
     """
     Local implementation of publisher.
 
-    It's not genuinely publish events to event bus, but in publish method call events handler
-    directly.
+    It's not genuinely publish events to event bus, but it calls events handler
     """
 
     def __init__(self, candidate_projection_repository: CandidateProjectionRepository):
@@ -24,6 +23,6 @@ class LocalEventPublisher(EventPublisher):
     ) -> None:
         handle_events(
             handlers,
+            [e.as_dict for e in events],
             self._candidate_projection_repository,
-            events=[e.as_dict for e in events],
         )

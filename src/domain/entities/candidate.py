@@ -18,9 +18,9 @@ SCORE_THRESH = 75.0
 
 class Candidate:
     """
-    Candidate is model representing person in first stage of recruitment process
+    Candidate is an aggregate representing person in first stage of recruitment process
     - Candidate is added to process at first.
-    - Candidate can be invited to the next stage, only if score exceed X value
+    - Candidate can be invited to the next stage, only if score exceed :attr:`score_thresh` value
     - Candidate can be moved to standby list only if was not invited to the next stage
     - Candidate can be rejected at any time
     """
