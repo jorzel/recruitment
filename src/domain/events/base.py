@@ -9,6 +9,10 @@ class DomainEvent:
     name = ""
 
     @property
+    def originator_id(self):
+        raise NotImplementedError()
+
+    @property
     def as_dict(self) -> Dict:
         serialized = asdict(self)
         serialized["name"] = self.name

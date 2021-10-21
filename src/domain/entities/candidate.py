@@ -53,6 +53,12 @@ class Candidate:
     def changes(self) -> List[DomainEvent]:
         return self._changes[:]
 
+    def _register_change(self, event: DomainEvent) -> None:
+        self._changes.append(event)
+
+    def clear_changes(self) -> None:
+        self._changes = []
+
     def apply(self, event: DomainEvent) -> DomainEvent:
         if isinstance(event, AddedCandidate):
             self._add(event)
@@ -65,9 +71,6 @@ class Candidate:
         else:
             raise UnrecognizedEvent()
         return event
-
-    def _register_change(self, event: DomainEvent) -> None:
-        self._changes.append(event)
 
     def add(self, profile: Dict[str, Any], score: float) -> None:
         self._register_change(

@@ -7,6 +7,7 @@ from infrastructure.db.memory.repositories.candidate import MemoryCandidateRepos
 from infrastructure.db.memory.repositories.candidate_projection import (
     MemoryCandidateProjectionRepository,
 )
+from infrastructure.db.memory.repositories.event import MemoryEventRepository
 from infrastructure.events.local.publisher import LocalEventPublisher
 
 
@@ -21,7 +22,9 @@ def candidate_projection_factory():
 
 
 def test_candidate_management_add():
-    candidate_repository = MemoryCandidateRepository()
+    candidate_repository = MemoryCandidateRepository(
+        event_repository=MemoryEventRepository()
+    )
     candidate_projection_repository = MemoryCandidateProjectionRepository()
     event_publisher = LocalEventPublisher(candidate_projection_repository)
     candidate_service = CandidateManagementService(
@@ -44,7 +47,9 @@ def test_candidate_management_add():
 def test_candidate_management_move_to_standby(
     candidate_factory, candidate_projection_factory
 ):
-    candidate_repository = MemoryCandidateRepository()
+    candidate_repository = MemoryCandidateRepository(
+        event_repository=MemoryEventRepository()
+    )
     candidate_projection_repository = MemoryCandidateProjectionRepository()
     event_publisher = LocalEventPublisher(candidate_projection_repository)
     candidate = candidate_factory(repository=candidate_repository)
@@ -55,15 +60,16 @@ def test_candidate_management_move_to_standby(
         event_publisher=event_publisher, candidate_repository=candidate_repository
     )
 
-    candidate_service.move_to_standby(candidate.id)
-
+    candidate = candidate_service.move_to_standby(candidate.id)
     assert candidate.status == Candidate.Status.STANDBY
     assert projection.status == Candidate.Status.STANDBY
     assert projection.moved_to_standby_at is not None
 
 
 def test_candidate_management_reject(candidate_factory, candidate_projection_factory):
-    candidate_repository = MemoryCandidateRepository()
+    candidate_repository = MemoryCandidateRepository(
+        event_repository=MemoryEventRepository()
+    )
     candidate_projection_repository = MemoryCandidateProjectionRepository()
     event_publisher = LocalEventPublisher(candidate_projection_repository)
     candidate = candidate_factory(
@@ -76,7 +82,7 @@ def test_candidate_management_reject(candidate_factory, candidate_projection_fac
         event_publisher=event_publisher, candidate_repository=candidate_repository
     )
 
-    candidate_service.reject(candidate.id)
+    candidate = candidate_service.reject(candidate.id)
 
     assert candidate.status == Candidate.Status.REJECTED
     assert projection.status == Candidate.Status.REJECTED
@@ -86,7 +92,9 @@ def test_candidate_management_reject(candidate_factory, candidate_projection_fac
 def test_candidate_invite_when_score_exceed_thresh(
     candidate_factory, candidate_projection_factory
 ):
-    candidate_repository = MemoryCandidateRepository()
+    candidate_repository = MemoryCandidateRepository(
+        event_repository=MemoryEventRepository()
+    )
     candidate_projection_repository = MemoryCandidateProjectionRepository()
     event_publisher = LocalEventPublisher(candidate_projection_repository)
     candidate = candidate_factory(repository=candidate_repository)
@@ -97,7 +105,7 @@ def test_candidate_invite_when_score_exceed_thresh(
         event_publisher=event_publisher, candidate_repository=candidate_repository
     )
 
-    candidate_service.invite(candidate.id)
+    candidate = candidate_service.invite(candidate.id)
 
     assert candidate.status == Candidate.Status.INVITED
     assert projection.status == Candidate.Status.INVITED

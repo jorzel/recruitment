@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from typing import Optional
 
 from domain.entities.candidate import Candidate
 
@@ -9,13 +10,9 @@ class CandidateRepository(ABC):
     """
 
     @abstractmethod
-    def get(self, candidate_id: str):
+    def get(self, candidate_id: str) -> Optional[Candidate]:
         pass
 
     @abstractmethod
-    def all(self):
-        pass
-
-    @abstractmethod
-    def add(self, candidate: Candidate):
+    def save(self, candidate: Candidate) -> None:
         pass

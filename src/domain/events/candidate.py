@@ -10,6 +10,10 @@ class CandidateEvent(DomainEvent):
     candidate_id: str
     timestamp: datetime = datetime.utcnow()
 
+    @property
+    def originator_id(self):
+        return self.candidate_id
+
 
 @dataclass(frozen=True)
 class AddedCandidate(DomainEvent):
@@ -19,6 +23,10 @@ class AddedCandidate(DomainEvent):
     profile: Dict[str, Any]
     score: float
     timestamp: datetime = datetime.utcnow()
+
+    @property
+    def originator_id(self):
+        return self.candidate_id
 
 
 class RejectedCandidate(CandidateEvent):
