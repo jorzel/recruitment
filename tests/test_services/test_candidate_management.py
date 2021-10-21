@@ -7,13 +7,13 @@ from infrastructure.db.memory.repositories.candidate import MemoryCandidateRepos
 from infrastructure.db.memory.repositories.candidate_projection import (
     MemoryCandidateProjectionRepository,
 )
-from infrastructure.db.memory.repositories.event import MemoryEventRepository
+from infrastructure.db.sqlalchemy.repositories.event import SQLAlchemyEventRepository
 from infrastructure.events.local.publisher import LocalEventPublisher
 
 
 @pytest.fixture
-def event_repository():
-    return MemoryEventRepository()
+def event_repository(db_session):
+    return SQLAlchemyEventRepository(db_session)
 
 
 @pytest.fixture

@@ -1,6 +1,8 @@
 import pytest
+from sqlalchemy.orm import sessionmaker
 
 from domain.entities.candidate import SCORE_THRESH, Candidate
+from infrastructure.db.sqlalchemy.setup import engine, metadata
 
 
 @pytest.fixture
@@ -34,3 +36,27 @@ def candidate_factory():
         return candidate
 
     return _candidate_factory
+
+
+@pytest.fixture(scope="session")
+def db_connection():
+    metadata.drop_all()
+    metadata.create_all()
+    connection = engine.connect()
+
+    yield connection
+
+    metadata.drop_all()
+    engine.dispose()
+
+
+@pytest.fixture
+def db_session(db_connection):
+    transaction = db_connection.begin()
+    session = sessionmaker(bind=db_connection)
+    session = session()
+
+    yield session
+
+    transaction.rollback()
+    session.close()

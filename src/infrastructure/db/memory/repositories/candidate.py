@@ -3,7 +3,7 @@ from typing import Optional
 from domain.entities.candidate import Candidate
 from domain.repositories.candidate import CandidateRepository
 
-from .event import MemoryEventRepository
+from .event import EventRepository
 
 
 class MemoryCandidateRepository(CandidateRepository):
@@ -11,7 +11,7 @@ class MemoryCandidateRepository(CandidateRepository):
     In-memory implementation for :class:`Candidate` instances storage
     """
 
-    def __init__(self, event_repository: MemoryEventRepository):
+    def __init__(self, event_repository: EventRepository):
         self._event_repository = event_repository
 
     def get(self, candidate_id: str) -> Optional[Candidate]:
