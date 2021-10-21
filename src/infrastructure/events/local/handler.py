@@ -2,10 +2,10 @@ import logging
 
 from domain.events.base import SerializedEvent
 from domain.events.candidate import (
-    AddedCandidateEvent,
-    InvitedCandidateEvent,
-    MovedToStandbyCandidateEvent,
-    RejectedCandidateEvent,
+    AddedCandidate,
+    InvitedCandidate,
+    MovedToStandbyCandidate,
+    RejectedCandidate,
 )
 from domain.projections.candidate import CandidateProjection
 from domain.repositories.candidate_projection import CandidateProjectionRepository
@@ -57,8 +57,8 @@ def handle_invited_candidate(
 
 
 handlers = {
-    AddedCandidateEvent.name: handle_added_candidate,
-    InvitedCandidateEvent.name: handle_invited_candidate,
-    MovedToStandbyCandidateEvent.name: handle_moved_to_standby_candidate,
-    RejectedCandidateEvent.name: handle_rejected_candidate,
+    AddedCandidate.name: handle_added_candidate,
+    InvitedCandidate.name: handle_invited_candidate,
+    MovedToStandbyCandidate.name: handle_moved_to_standby_candidate,
+    RejectedCandidate.name: handle_rejected_candidate,
 }

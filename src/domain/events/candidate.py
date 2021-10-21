@@ -10,14 +10,10 @@ class CandidateEvent(DomainEvent):
     candidate_id: str
     timestamp: datetime = datetime.utcnow()
 
-    @property
-    def name(self) -> str:
-        return self.__class__.__name__
-
 
 @dataclass(frozen=True)
-class AddedCandidateEvent(DomainEvent):
-    name = "AddedCandidateEvent"
+class AddedCandidate(DomainEvent):
+    name = "AddedCandidate"
 
     candidate_id: str
     profile: Dict[str, Any]
@@ -25,13 +21,13 @@ class AddedCandidateEvent(DomainEvent):
     timestamp: datetime = datetime.utcnow()
 
 
-class RejectedCandidateEvent(CandidateEvent):
-    name = "RejectedCandidateEvent"
+class RejectedCandidate(CandidateEvent):
+    name = "RejectedCandidate"
 
 
-class MovedToStandbyCandidateEvent(CandidateEvent):
-    name = "MovedToStandbyCandidateEvent"
+class MovedToStandbyCandidate(CandidateEvent):
+    name = "MovedToStandbyCandidate"
 
 
-class InvitedCandidateEvent(CandidateEvent):
-    name = "InvitedCandidateEvent"
+class InvitedCandidate(CandidateEvent):
+    name = "InvitedCandidate"

@@ -3,10 +3,10 @@ from typing import Any, Dict, List
 
 from domain.events.base import DomainEvent
 from domain.events.candidate import (
-    AddedCandidateEvent,
-    InvitedCandidateEvent,
-    MovedToStandbyCandidateEvent,
-    RejectedCandidateEvent,
+    AddedCandidate,
+    InvitedCandidate,
+    MovedToStandbyCandidate,
+    RejectedCandidate,
 )
 
 
@@ -44,49 +44,49 @@ class Candidate:
         for event in events:
             self.apply(event)
 
-    def apply(self, event: DomainEvent):
-        if isinstance(event, AddedCandidateEvent):
+    def apply(self, event: DomainEvent) -> DomainEvent:
+        if isinstance(event, AddedCandidate):
             self._add(event)
-        elif isinstance(event, InvitedCandidateEvent):
+        elif isinstance(event, InvitedCandidate):
             self._invite(event)
-        elif isinstance(event, MovedToStandbyCandidateEvent):
+        elif isinstance(event, MovedToStandbyCandidate):
             self._move_to_standby(event)
-        elif isinstance(event, RejectedCandidateEvent):
+        elif isinstance(event, RejectedCandidate):
             self._reject(event)
         else:
             raise UnrecognizedEvent()
         return event
 
-    def add(self, profile: Dict[str, Any], score: float) -> AddedCandidateEvent:
+    def add(self, profile: Dict[str, Any], score: float) -> AddedCandidate:
         return self.apply(
-            AddedCandidateEvent(candidate_id=self.id, profile=profile, score=score)
+            AddedCandidate(candidate_id=self.id, profile=profile, score=score)
         )
 
-    def _add(self, event: AddedCandidateEvent):
+    def _add(self, event: AddedCandidate):
         self.status = self.Status.ADDED
         self.score = event.score
 
-    def invite(self) -> InvitedCandidateEvent:
-        return self.apply(InvitedCandidateEvent(candidate_id=self.id))
+    def invite(self) -> InvitedCandidate:
+        return self.apply(InvitedCandidate(candidate_id=self.id))
 
-    def _invite(self, event: InvitedCandidateEvent):
+    def _invite(self, event: InvitedCandidate):
         if self.status not in (self.Status.STANDBY, self.Status.ADDED):
             raise CandidateInvalidAction()
         if self.score < self.SCORE_THRESH:
             raise CandidateInvalidAction()
         self.status = self.Status.INVITED
 
-    def move_to_standby(self) -> MovedToStandbyCandidateEvent:
-        return self.apply(MovedToStandbyCandidateEvent(candidate_id=self.id))
+    def move_to_standby(self) -> MovedToStandbyCandidate:
+        return self.apply(MovedToStandbyCandidate(candidate_id=self.id))
 
-    def _move_to_standby(self, event: MovedToStandbyCandidateEvent):
+    def _move_to_standby(self, event: MovedToStandbyCandidate):
         if self.status == self.Status.ADDED:
             self.status = self.Status.STANDBY
         else:
             raise CandidateInvalidAction()
 
-    def reject(self) -> RejectedCandidateEvent:
-        return self.apply(RejectedCandidateEvent(candidate_id=self.id))
+    def reject(self) -> RejectedCandidate:
+        return self.apply(RejectedCandidate(candidate_id=self.id))
 
-    def _reject(self, event: RejectedCandidateEvent):
+    def _reject(self, event: RejectedCandidate):
         self.status = self.Status.REJECTED

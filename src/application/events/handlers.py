@@ -3,10 +3,10 @@ from typing import Any, Dict, List
 
 from domain.events.base import DomainEvent, SerializedEvent
 from domain.events.candidate import (
-    AddedCandidateEvent,
-    InvitedCandidateEvent,
-    MovedToStandbyCandidateEvent,
-    RejectedCandidateEvent,
+    AddedCandidate,
+    InvitedCandidate,
+    MovedToStandbyCandidate,
+    RejectedCandidate,
 )
 from domain.repositories.candidate_projection import CandidateProjectionRepository
 
@@ -32,10 +32,10 @@ def handle_events(
             continue
 
         if event["name"] not in (
-            AddedCandidateEvent.name,
-            InvitedCandidateEvent.name,
-            RejectedCandidateEvent.name,
-            MovedToStandbyCandidateEvent.name,
+            AddedCandidate.name,
+            InvitedCandidate.name,
+            RejectedCandidate.name,
+            MovedToStandbyCandidate.name,
         ):
             logger.info(f"Cannot find repository for {event}")
             continue
