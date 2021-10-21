@@ -12,6 +12,31 @@ from infrastructure.events.local.publisher import LocalEventPublisher
 
 
 @pytest.fixture
+def event_repository():
+    return MemoryEventRepository()
+
+
+@pytest.fixture
+def candidate_repository(event_repository):
+    return MemoryCandidateRepository(event_repository)
+
+
+@pytest.fixture
+def candidate_projection_repository():
+    return MemoryCandidateProjectionRepository()
+
+
+@pytest.fixture
+def event_publisher(candidate_projection_repository):
+    return LocalEventPublisher(candidate_projection_repository)
+
+
+@pytest.fixture
+def candidate_service(event_publisher, candidate_repository):
+    return CandidateManagementService(event_publisher, candidate_repository)
+
+
+@pytest.fixture
 def candidate_projection_factory():
     def _candidate_projection_factory(repository, candidate_id):
         projection = CandidateProjection(candidate_id)
@@ -21,15 +46,7 @@ def candidate_projection_factory():
     return _candidate_projection_factory
 
 
-def test_candidate_management_add():
-    candidate_repository = MemoryCandidateRepository(
-        event_repository=MemoryEventRepository()
-    )
-    candidate_projection_repository = MemoryCandidateProjectionRepository()
-    event_publisher = LocalEventPublisher(candidate_projection_repository)
-    candidate_service = CandidateManagementService(
-        event_publisher=event_publisher, candidate_repository=candidate_repository
-    )
+def test_candidate_management_add(candidate_service, candidate_projection_repository):
     score = 88.0
     profile = {"test": 1}
 
@@ -45,19 +62,15 @@ def test_candidate_management_add():
 
 
 def test_candidate_management_move_to_standby(
-    candidate_factory, candidate_projection_factory
+    candidate_factory,
+    candidate_projection_factory,
+    candidate_service,
+    candidate_repository,
+    candidate_projection_repository,
 ):
-    candidate_repository = MemoryCandidateRepository(
-        event_repository=MemoryEventRepository()
-    )
-    candidate_projection_repository = MemoryCandidateProjectionRepository()
-    event_publisher = LocalEventPublisher(candidate_projection_repository)
     candidate = candidate_factory(repository=candidate_repository)
     projection = candidate_projection_factory(
         candidate_projection_repository, candidate.id
-    )
-    candidate_service = CandidateManagementService(
-        event_publisher=event_publisher, candidate_repository=candidate_repository
     )
 
     candidate = candidate_service.move_to_standby(candidate.id)
@@ -66,20 +79,16 @@ def test_candidate_management_move_to_standby(
     assert projection.moved_to_standby_at is not None
 
 
-def test_candidate_management_reject(candidate_factory, candidate_projection_factory):
-    candidate_repository = MemoryCandidateRepository(
-        event_repository=MemoryEventRepository()
-    )
-    candidate_projection_repository = MemoryCandidateProjectionRepository()
-    event_publisher = LocalEventPublisher(candidate_projection_repository)
-    candidate = candidate_factory(
-        repository=candidate_repository, status=Candidate.Status.ADDED
-    )
+def test_candidate_management_reject(
+    candidate_factory,
+    candidate_projection_factory,
+    candidate_service,
+    candidate_repository,
+    candidate_projection_repository,
+):
+    candidate = candidate_factory(repository=candidate_repository)
     projection = candidate_projection_factory(
         candidate_projection_repository, candidate.id
-    )
-    candidate_service = CandidateManagementService(
-        event_publisher=event_publisher, candidate_repository=candidate_repository
     )
 
     candidate = candidate_service.reject(candidate.id)
@@ -90,19 +99,15 @@ def test_candidate_management_reject(candidate_factory, candidate_projection_fac
 
 
 def test_candidate_invite_when_score_exceed_thresh(
-    candidate_factory, candidate_projection_factory
+    candidate_factory,
+    candidate_projection_factory,
+    candidate_service,
+    candidate_repository,
+    candidate_projection_repository,
 ):
-    candidate_repository = MemoryCandidateRepository(
-        event_repository=MemoryEventRepository()
-    )
-    candidate_projection_repository = MemoryCandidateProjectionRepository()
-    event_publisher = LocalEventPublisher(candidate_projection_repository)
     candidate = candidate_factory(repository=candidate_repository)
     projection = candidate_projection_factory(
         candidate_projection_repository, candidate.id
-    )
-    candidate_service = CandidateManagementService(
-        event_publisher=event_publisher, candidate_repository=candidate_repository
     )
 
     candidate = candidate_service.invite(candidate.id)
