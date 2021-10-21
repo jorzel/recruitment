@@ -15,22 +15,22 @@ class CandidateManagementService:
 
     def add(self, profile: Dict[str, Any], score: float) -> Candidate:
         candidate = Candidate(candidate_id=uuid.uuid1, events=[])
-        event = candidate.add(profile, score)
+        candidate.add(profile, score)
         self._candidate_repository.add(candidate)
-        self._event_publisher.publish([event])
+        self._event_publisher.publish(candidate.changes)
         return candidate
 
     def invite(self, candidate_id: str) -> None:
         candidate = self._candidate_repository.get(candidate_id)
-        event = candidate.invite()
-        self._event_publisher.publish([event])
+        candidate.invite()
+        self._event_publisher.publish(candidate.changes)
 
     def move_to_standby(self, candidate_id: str) -> None:
         candidate = self._candidate_repository.get(candidate_id)
-        event = candidate.move_to_standby()
-        self._event_publisher.publish([event])
+        candidate.move_to_standby()
+        self._event_publisher.publish(candidate.changes)
 
     def reject(self, candidate_id: str) -> None:
         candidate = self._candidate_repository.get(candidate_id)
-        event = candidate.reject()
-        self._event_publisher.publish([event])
+        candidate.reject()
+        self._event_publisher.publish(candidate.changes)

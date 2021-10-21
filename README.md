@@ -11,3 +11,5 @@ Read model can be synchronized using:
 - any implementation of real event bus / message broker (RabbitMQ, Kafka).
   Thanks to it, read model can be placed in other module / application / system,
   and update is eventually consistent
+
+Huge part of this code was inspired by: https://breadcrumbscollector.tech/category/event-sourcing/
