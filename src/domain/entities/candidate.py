@@ -1,4 +1,3 @@
-import uuid
 from typing import Any, Dict, List
 
 from domain.events.base import DomainEvent
@@ -36,8 +35,13 @@ class Candidate:
         STANDBY = "STANDBY"
         INVITED = "INVITED"  # invited for the next recruitment stage
 
-    def __init__(self, events: List[DomainEvent], score_thresh: float = SCORE_THRESH):
-        self.id = uuid.uuid1()
+    def __init__(
+        self,
+        candidate_id: str,
+        events: List[DomainEvent],
+        score_thresh: float = SCORE_THRESH,
+    ):
+        self.id = candidate_id
         self.SCORE_THRESH = score_thresh
         self.status: str
         self.score: float

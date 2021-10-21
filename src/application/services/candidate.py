@@ -1,3 +1,4 @@
+import uuid
 from typing import Any, Dict
 
 from application.events.publisher import EventPublisher
@@ -13,7 +14,7 @@ class CandidateManagementService:
         self._candidate_repository = candidate_repository
 
     def add(self, profile: Dict[str, Any], score: float) -> Candidate:
-        candidate = Candidate(events=[])
+        candidate = Candidate(candidate_id=uuid.uuid1, events=[])
         event = candidate.add(profile, score)
         self._candidate_repository.add(candidate)
         self._event_publisher.publish([event])
