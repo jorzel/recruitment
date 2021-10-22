@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from domain.projections.candidate import CandidateProjection
 from domain.repositories.candidate_projection import CandidateProjectionRepository
+from domain.value_objects import AggregateId
 
 
 class SQLAlchemyCandidateProjectionRepository(CandidateProjectionRepository):
@@ -18,7 +19,7 @@ class SQLAlchemyCandidateProjectionRepository(CandidateProjectionRepository):
     def queryset(self):
         return self.session.query(CandidateProjection)
 
-    def get(self, candidate_id: int) -> Optional[CandidateProjection]:
+    def get(self, candidate_id: AggregateId) -> Optional[CandidateProjection]:
         return self.queryset.get(candidate_id)
 
     def add(self, candidate_projection: CandidateProjection) -> None:

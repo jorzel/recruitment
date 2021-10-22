@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from domain.projections.candidate import CandidateProjection
+from domain.value_objects import AggregateId
 
 
 class CandidateProjectionRepository(ABC):
@@ -10,7 +11,7 @@ class CandidateProjectionRepository(ABC):
     """
 
     @abstractmethod
-    def get(self, candidate_id: str) -> Optional[CandidateProjection]:
+    def get(self, candidate_id: AggregateId) -> Optional[CandidateProjection]:
         pass
 
     @abstractmethod

@@ -1,9 +1,12 @@
 import json
 from typing import List
 
+from sqlalchemy.orm import Session
+
 import domain.events.candidate as domain_events
 from domain.events.base import DomainEvent
 from domain.repositories.event import EventRepository
+from domain.value_objects import AggregateId
 from infrastructure.db.sqlalchemy.orm import StoredEvent, run_mappers
 
 # temporary here, should be executed in app runtime
@@ -40,11 +43,11 @@ class SQLAlchemyEventRepository(EventRepository):
     SQLAlchemy db driver implementation of :class:`DomainEvent` storage
     """
 
-    def __init__(self, session):
+    def __init__(self, session: Session):
         self._session = session
         self._event_mapper = EventMapper()
 
-    def filter_by_originator_id(self, originator_id: str) -> List[DomainEvent]:
+    def filter_by_originator_id(self, originator_id: AggregateId) -> List[DomainEvent]:
         _events = []
         query = (
             self._session.query(StoredEvent)

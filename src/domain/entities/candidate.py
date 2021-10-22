@@ -8,6 +8,7 @@ from domain.events.candidate import (
     MovedToStandbyCandidate,
     RejectedCandidate,
 )
+from domain.value_objects import AggregateId
 
 
 class CandidateInvalidAction(Exception):
@@ -38,7 +39,7 @@ class Candidate:
 
     def __init__(
         self,
-        candidate_id: str,
+        candidate_id: AggregateId,
         events: List[DomainEvent],
         score_thresh: float = SCORE_THRESH,
     ):

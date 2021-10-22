@@ -1,6 +1,7 @@
 from typing import Optional
 
 from domain.entities.candidate import Candidate
+from domain.value_objects import AggregateId
 
 from .event import EventRepository
 
@@ -13,7 +14,7 @@ class CandidateRepository:
     def __init__(self, event_repository: EventRepository):
         self._event_repository = event_repository
 
-    def get(self, candidate_id: str) -> Optional[Candidate]:
+    def get(self, candidate_id: AggregateId) -> Optional[Candidate]:
         events = self._event_repository.filter_by_originator_id(candidate_id)
         return Candidate(candidate_id, events)
 

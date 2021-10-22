@@ -1,12 +1,14 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from domain.value_objects import AggregateId
+
 from .base import DomainEvent
 
 
 @dataclass(frozen=True)
 class CandidateEvent(DomainEvent):
-    candidate_id: str
+    candidate_id: AggregateId
     timestamp: datetime = datetime.utcnow()
 
     @property
@@ -18,7 +20,7 @@ class CandidateEvent(DomainEvent):
 class AddedCandidate(DomainEvent):
     name = "AddedCandidate"
 
-    candidate_id: str
+    candidate_id: AggregateId
     profile: str  # stringfied json
     score: float
     timestamp: datetime = datetime.utcnow()

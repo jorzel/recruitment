@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List
 
 from domain.events.base import DomainEvent
+from domain.value_objects import AggregateId
 
 
 class EventRepository(ABC):
@@ -12,7 +13,7 @@ class EventRepository(ABC):
     """
 
     @abstractmethod
-    def filter_by_originator_id(self, originator_id: str) -> List[DomainEvent]:
+    def filter_by_originator_id(self, originator_id: AggregateId) -> List[DomainEvent]:
         pass
 
     @abstractmethod

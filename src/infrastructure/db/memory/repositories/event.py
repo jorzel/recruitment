@@ -2,6 +2,7 @@ from typing import List
 
 from domain.events.base import DomainEvent
 from domain.repositories.event import EventRepository
+from domain.value_objects import AggregateId
 
 
 class MemoryEventRepository(EventRepository):
@@ -12,7 +13,7 @@ class MemoryEventRepository(EventRepository):
     def __init__(self):
         self._events = {}
 
-    def filter_by_originator_id(self, originator_id: str) -> List[DomainEvent]:
+    def filter_by_originator_id(self, originator_id: AggregateId) -> List[DomainEvent]:
         return self._events.get(originator_id, [])
 
     def add(self, event: DomainEvent) -> None:

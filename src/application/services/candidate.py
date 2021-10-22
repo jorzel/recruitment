@@ -5,6 +5,7 @@ from application.events.publisher import EventPublisher
 from application.uow import UnitOfWork
 from domain.entities.candidate import Candidate
 from domain.repositories.candidate import CandidateRepository
+from domain.value_objects import AggregateId
 
 
 class CandidateManagementService:
@@ -37,7 +38,7 @@ class CandidateManagementService:
             candidate.clear_changes()
             return candidate
 
-    def invite(self, candidate_id: str) -> Candidate:
+    def invite(self, candidate_id: AggregateId) -> Candidate:
         with self._unit_of_work:
             candidate = self._candidate_repository.get(candidate_id)
             candidate.invite()
@@ -46,7 +47,7 @@ class CandidateManagementService:
             candidate.clear_changes()
             return candidate
 
-    def move_to_standby(self, candidate_id: str) -> Candidate:
+    def move_to_standby(self, candidate_id: AggregateId) -> Candidate:
         with self._unit_of_work:
             candidate = self._candidate_repository.get(candidate_id)
             candidate.move_to_standby()
@@ -55,7 +56,7 @@ class CandidateManagementService:
             candidate.clear_changes()
             return candidate
 
-    def reject(self, candidate_id: str) -> Candidate:
+    def reject(self, candidate_id: AggregateId) -> Candidate:
         with self._unit_of_work:
             candidate = self._candidate_repository.get(candidate_id)
             candidate.reject()
