@@ -3,7 +3,7 @@ import pytest
 from application.services.candidate import CandidateManagementService
 from domain.entities.candidate import Candidate
 from domain.projections.candidate import CandidateProjection
-from infrastructure.db.memory.repositories.candidate import MemoryCandidateRepository
+from domain.repositories.candidate import CandidateRepository
 from infrastructure.db.memory.repositories.candidate_projection import (
     MemoryCandidateProjectionRepository,
 )
@@ -18,7 +18,7 @@ def event_repository(db_session):
 
 @pytest.fixture
 def candidate_repository(event_repository):
-    return MemoryCandidateRepository(event_repository)
+    return CandidateRepository(event_repository)
 
 
 @pytest.fixture

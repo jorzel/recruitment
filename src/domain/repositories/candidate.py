@@ -1,18 +1,23 @@
-from abc import ABC, abstractmethod
 from typing import Optional
 
 from domain.entities.candidate import Candidate
 
+from .event import EventRepository
 
-class CandidateRepository(ABC):
+
+class CandidateRepository:
     """
-    Interface defining :class:`Candidate` storage
+    Implementation for aggregate storage, based on events manipulations
     """
 
-    @abstractmethod
+    def __init__(self, event_repository: EventRepository):
+        self._event_repository = event_repository
+
     def get(self, candidate_id: str) -> Optional[Candidate]:
-        pass
+        events = self._event_repository.filter_by_originator_id(candidate_id)
+        return Candidate(candidate_id, events)
 
-    @abstractmethod
     def save(self, candidate: Candidate) -> None:
-        pass
+        for event in candidate.changes:
+            self._event_repository.add(event)
+        candidate.clear_changes()
