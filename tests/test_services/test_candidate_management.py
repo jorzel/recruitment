@@ -8,7 +8,13 @@ from infrastructure.db.memory.repositories.candidate_projection import (
     MemoryCandidateProjectionRepository,
 )
 from infrastructure.db.sqlalchemy.repositories.event import SQLAlchemyEventRepository
+from infrastructure.db.sqlalchemy.uow import SQLAlchemyUnitOfWork
 from infrastructure.events.local.publisher import LocalEventPublisher
+
+
+@pytest.fixture
+def unit_of_work(db_session):
+    return SQLAlchemyUnitOfWork(db_session)
 
 
 @pytest.fixture
@@ -32,8 +38,10 @@ def event_publisher(candidate_projection_repository):
 
 
 @pytest.fixture
-def candidate_service(event_publisher, candidate_repository):
-    return CandidateManagementService(event_publisher, candidate_repository)
+def candidate_service(unit_of_work, event_publisher, candidate_repository):
+    return CandidateManagementService(
+        unit_of_work, event_publisher, candidate_repository
+    )
 
 
 @pytest.fixture
