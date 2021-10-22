@@ -8,6 +8,16 @@ from domain.repositories.candidate import CandidateRepository
 
 
 class CandidateManagementService:
+    """
+    Application service that handles incomming commands
+
+    :meth:`EventPublisher.publish(events)` is called within :attr:`unit_of_work`
+    context manager (within transcation if we use database). This implementation
+    provides at least one delivery mechanism (event is dispatched, but
+    transaction still can be rollbacked after that). So event handlers should be
+    idempotent.
+    """
+
     def __init__(
         self,
         unit_of_work: UnitOfWork,
