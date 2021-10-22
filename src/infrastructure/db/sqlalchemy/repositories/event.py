@@ -10,36 +10,53 @@ from infrastructure.db.sqlalchemy.orm import StoredEvent, run_mappers
 run_mappers()
 
 
+class EventMapper:
+    """
+    Bidirectional event mapper that provide transformations:
+    - encode: DomainEvent -> StorageEvent
+    - decode: StarageEvent -> DomainEvent
+    """
+
+    def encode(self, domain_event: DomainEvent) -> StoredEvent:
+        serialized_event = domain_event.as_dict
+        timestamp = serialized_event.pop("timestamp")
+        name = serialized_event.pop("name")
+        return StoredEvent(
+            originator_id=domain_event.originator_id,
+            name=name,
+            timestamp=timestamp,
+            data=json.dumps(serialized_event),
+        )
+
+    def decode(self, stored_event: StoredEvent) -> DomainEvent:
+        domain_event_class = getattr(domain_events, stored_event.name)
+        payload = json.loads(stored_event.data)
+        payload["timestamp"] = stored_event.timestamp
+        return domain_event_class(**payload)
+
+
 class SQLAlchemyEventRepository(EventRepository):
     """
     SQLAlchemy db driver implementation of :class:`DomainEvent` storage
     """
 
     def __init__(self, session):
-        self.session = session
+        self._session = session
+        self._event_mapper = EventMapper()
 
     def filter_by_originator_id(self, originator_id: str) -> List[DomainEvent]:
         _events = []
         query = (
-            self.session.query(StoredEvent)
+            self._session.query(StoredEvent)
             .filter_by(originator_id=originator_id)
             .order_by(StoredEvent.timestamp)
         )
-        for event in query:
-            event_class = getattr(domain_events, event.name)
-            payload = json.loads(event.data)
-            _events.append(event_class(**payload))
+        for stored_event in query:
+            domain_event = self._event_mapper.decode(stored_event)
+            _events.append(domain_event)
         return _events
 
-    def add(self, event: DomainEvent) -> None:
-        serialized_event = event.as_dict
-        timestamp = serialized_event.pop("timestamp")
-        name = serialized_event.pop("name")
-        self.session.add(
-            StoredEvent(
-                originator_id=event.originator_id,
-                name=name,
-                timestamp=timestamp,
-                data=json.dumps(serialized_event),
-            )
-        )
+    def add(self, domain_event: DomainEvent) -> None:
+        stored_event = self._event_mapper.encode(domain_event)
+        self._session.add(stored_event)
+        self._session.flush()
