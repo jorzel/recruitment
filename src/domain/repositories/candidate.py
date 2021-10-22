@@ -20,4 +20,3 @@ class CandidateRepository:
     def save(self, candidate: Candidate) -> None:
         for event in candidate.changes:
             self._event_repository.add(event)
-        candidate.clear_changes()
