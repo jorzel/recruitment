@@ -2,10 +2,9 @@ import json
 from typing import List
 
 import domain.events.candidate as domain_events
-from domain.events.base import DomainEvent, Event
+from domain.events.base import DomainEvent
 from domain.repositories.event import EventRepository
-
-from ..orm import run_mappers
+from infrastructure.db.sqlalchemy.orm import StoredEvent, run_mappers
 
 # temporary here, should be executed in app runtime
 run_mappers()
@@ -22,9 +21,9 @@ class SQLAlchemyEventRepository(EventRepository):
     def filter_by_originator_id(self, originator_id: str) -> List[DomainEvent]:
         _events = []
         query = (
-            self.session.query(Event)
+            self.session.query(StoredEvent)
             .filter_by(originator_id=originator_id)
-            .order_by(Event.timestamp)
+            .order_by(StoredEvent.timestamp)
         )
         for event in query:
             event_class = getattr(domain_events, event.name)
@@ -37,7 +36,7 @@ class SQLAlchemyEventRepository(EventRepository):
         timestamp = serialized_event.pop("timestamp")
         name = serialized_event.pop("name")
         self.session.add(
-            Event(
+            StoredEvent(
                 originator_id=event.originator_id,
                 name=name,
                 timestamp=timestamp,
