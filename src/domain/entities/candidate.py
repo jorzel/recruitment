@@ -1,3 +1,4 @@
+import json
 from typing import Any, Dict, List
 
 from domain.events.base import DomainEvent
@@ -75,7 +76,9 @@ class Candidate:
     def add(self, profile: Dict[str, Any], score: float) -> None:
         self._register_change(
             self.apply(
-                AddedCandidate(candidate_id=self.id, profile=profile, score=score)
+                AddedCandidate(
+                    candidate_id=self.id, profile=json.dumps(profile), score=score
+                )
             )
         )
 

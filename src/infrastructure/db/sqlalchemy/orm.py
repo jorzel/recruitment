@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Integer, String, Table, Text
+from sqlalchemy import Column, DateTime, Float, Integer, String, Table, Text
 from sqlalchemy.orm import mapper
 
+from domain.projections.candidate import CandidateProjection
 from infrastructure.db.sqlalchemy.setup import metadata
 
 
@@ -28,9 +29,27 @@ events = Table(
     Column("timestamp", DateTime),
 )
 
+candidate_projections = Table(
+    "candidate_projections",
+    metadata,
+    Column("candidate_id", String, primary_key=True),
+    Column("score", Float),
+    Column("status", String),
+    Column("profile", Text),
+    Column("added_at", DateTime),
+    Column("invited_at", DateTime),
+    Column("moved_to_standby_at", DateTime),
+    Column("rejected_at", DateTime),
+)
+
 
 def run_mappers():
     """
     Provides mapping between db tables and domain models.
     """
     mapper(StoredEvent, events)
+    mapper(
+        CandidateProjection,
+        candidate_projections,
+        properties={"_profile": candidate_projections.c.profile},
+    )

@@ -4,8 +4,8 @@ from application.services.candidate import CandidateManagementService
 from domain.entities.candidate import Candidate
 from domain.projections.candidate import CandidateProjection
 from domain.repositories.candidate import CandidateRepository
-from infrastructure.db.memory.repositories.candidate_projection import (
-    MemoryCandidateProjectionRepository,
+from infrastructure.db.sqlalchemy.repositories.candidate_projection import (
+    SQLAlchemyCandidateProjectionRepository,
 )
 from infrastructure.db.sqlalchemy.repositories.event import SQLAlchemyEventRepository
 from infrastructure.db.sqlalchemy.uow import SQLAlchemyUnitOfWork
@@ -28,8 +28,8 @@ def candidate_repository(event_repository):
 
 
 @pytest.fixture
-def candidate_projection_repository():
-    return MemoryCandidateProjectionRepository()
+def candidate_projection_repository(db_session):
+    return SQLAlchemyCandidateProjectionRepository(db_session)
 
 
 @pytest.fixture
