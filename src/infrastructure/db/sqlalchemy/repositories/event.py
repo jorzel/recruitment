@@ -1,4 +1,3 @@
-import json
 from typing import List
 
 from sqlalchemy.orm import Session
@@ -28,12 +27,12 @@ class EventMapper:
             originator_id=domain_event.originator_id,
             name=name,
             timestamp=timestamp,
-            data=json.dumps(serialized_event),
+            data=serialized_event,
         )
 
     def decode(self, stored_event: StoredEvent) -> DomainEvent:
         domain_event_class = getattr(domain_events, stored_event.name)
-        payload = json.loads(stored_event.data)
+        payload = stored_event.data
         payload["timestamp"] = stored_event.timestamp
         return domain_event_class(**payload)
 

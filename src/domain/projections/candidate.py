@@ -1,5 +1,3 @@
-import json
-
 from domain.events.base import SerializedEvent
 
 from ..entities.candidate import Candidate
@@ -14,21 +12,17 @@ class CandidateProjection:
         self.candidate_id = candidate_id
         self.score = None
         self.status = None
-        self._profile = None
+        self.profile = None
         self.added_at = None
         self.invited_at = None
         self.rejected_at = None
         self.moved_to_standby_at = None
 
-    @property
-    def profile(self):
-        return json.loads(self._profile) if self._profile else None
-
     def handle_added(self, event: SerializedEvent) -> None:
         self.status = Candidate.Status.ADDED
         self.score = event["score"]
         self.added_at = event["timestamp"]
-        self._profile = event["profile"]
+        self.profile = event["profile"]
 
     def handle_rejected(self, event: SerializedEvent) -> None:
         self.status = Candidate.Status.REJECTED

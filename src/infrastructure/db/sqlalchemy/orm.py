@@ -1,6 +1,7 @@
 from datetime import datetime
 
-from sqlalchemy import Column, DateTime, Float, Integer, String, Table, Text
+from sqlalchemy import Column, DateTime, Float, Integer, String, Table
+from sqlalchemy.dialects.sqlite import JSON
 from sqlalchemy.orm import mapper
 
 from domain.projections.candidate import CandidateProjection
@@ -28,7 +29,7 @@ events = Table(
     Column("id", Integer, primary_key=True, autoincrement=True),
     Column("originator_id", String),
     Column("name", String),
-    Column("data", Text),
+    Column("data", JSON),
     Column("timestamp", DateTime),
 )
 
@@ -38,7 +39,7 @@ candidate_projections = Table(
     Column("candidate_id", String, primary_key=True),
     Column("score", Float),
     Column("status", String),
-    Column("profile", Text),
+    Column("profile", JSON),
     Column("added_at", DateTime),
     Column("invited_at", DateTime),
     Column("moved_to_standby_at", DateTime),
@@ -54,5 +55,4 @@ def run_mappers():
     mapper(
         CandidateProjection,
         candidate_projections,
-        properties={"_profile": candidate_projections.c.profile},
     )

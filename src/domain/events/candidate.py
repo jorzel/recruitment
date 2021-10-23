@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Any, Dict
 
 from domain.value_objects import AggregateId
 
@@ -21,7 +22,7 @@ class AddedCandidate(DomainEvent):
     name = "AddedCandidate"
 
     candidate_id: AggregateId
-    profile: str  # stringfied json
+    profile: Dict[str, Any]
     score: float
     timestamp: datetime = datetime.utcnow()
 
