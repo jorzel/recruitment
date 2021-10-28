@@ -33,8 +33,8 @@ def candidate_projection_repository(db_session):
 
 
 @pytest.fixture
-def event_publisher(candidate_projection_repository):
-    return LocalEventPublisher(candidate_projection_repository)
+def event_publisher(candidate_projection_repository, unit_of_work):
+    return LocalEventPublisher(unit_of_work, candidate_projection_repository)
 
 
 @pytest.fixture

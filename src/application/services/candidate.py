@@ -12,11 +12,10 @@ class CandidateManagementService:
     """
     Application service that handles incomming commands
 
-    :meth:`EventPublisher.publish(events)` is called within :attr:`unit_of_work`
+    :meth:`EventPublisher.publish(events)` is called outside :attr:`unit_of_work`
     context manager (within transcation if we use database). This implementation
-    provides at least one delivery mechanism (event is dispatched, but
-    transaction still can be rollbacked after that). So event handlers should be
-    idempotent.
+    provides at most one delivery mechanism (event is dispatched once, after
+    transaction is commited).
     """
 
     def __init__(
@@ -34,33 +33,33 @@ class CandidateManagementService:
             candidate = Candidate(candidate_id=str(uuid.uuid1()), events=[])
             candidate.add(profile, score)
             self._candidate_repository.save(candidate)
-            self._event_publisher.publish(candidate.changes)
-            candidate.clear_changes()
-            return candidate
+        self._event_publisher.publish(candidate.changes)
+        candidate.clear_changes()
+        return candidate
 
     def invite(self, candidate_id: AggregateId) -> Candidate:
         with self._unit_of_work:
             candidate = self._candidate_repository.get(candidate_id)
             candidate.invite()
             self._candidate_repository.save(candidate)
-            self._event_publisher.publish(candidate.changes)
-            candidate.clear_changes()
-            return candidate
+        self._event_publisher.publish(candidate.changes)
+        candidate.clear_changes()
+        return candidate
 
     def move_to_standby(self, candidate_id: AggregateId) -> Candidate:
         with self._unit_of_work:
             candidate = self._candidate_repository.get(candidate_id)
             candidate.move_to_standby()
             self._candidate_repository.save(candidate)
-            self._event_publisher.publish(candidate.changes)
-            candidate.clear_changes()
-            return candidate
+        self._event_publisher.publish(candidate.changes)
+        candidate.clear_changes()
+        return candidate
 
     def reject(self, candidate_id: AggregateId) -> Candidate:
         with self._unit_of_work:
             candidate = self._candidate_repository.get(candidate_id)
             candidate.reject()
             self._candidate_repository.save(candidate)
-            self._event_publisher.publish(candidate.changes)
-            candidate.clear_changes()
-            return candidate
+        self._event_publisher.publish(candidate.changes)
+        candidate.clear_changes()
+        return candidate
