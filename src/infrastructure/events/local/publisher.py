@@ -4,7 +4,7 @@ from application.events.handlers import EventHandler
 from application.events.publisher import EventPublisher
 from application.uow import UnitOfWork
 from domain.events.base import DomainEvent
-from domain.repositories.candidate_projection import CandidateProjectionRepository
+from domain.projections.store import ProjectionStore
 from infrastructure.events.local.handler import handlers
 
 
@@ -18,11 +18,9 @@ class LocalEventPublisher(EventPublisher):
     def __init__(
         self,
         unit_of_work: UnitOfWork,
-        candidate_projection_repository: CandidateProjectionRepository,
+        projection_store: ProjectionStore,
     ):
-        self._event_handler = EventHandler(
-            handlers, unit_of_work, candidate_projection_repository
-        )
+        self._event_handler = EventHandler(handlers, unit_of_work, projection_store)
 
     def publish(
         self,

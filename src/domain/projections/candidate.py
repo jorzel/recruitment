@@ -3,7 +3,11 @@ from domain.events.base import SerializedEvent
 from ..entities.candidate import Candidate
 
 
-class CandidateProjection:
+class Projection:
+    pass
+
+
+class CandidateProjection(Projection):
     """
     Read model that is build upon events dispatched by :class:`Candidate` aggregate
     """

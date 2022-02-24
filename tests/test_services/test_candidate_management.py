@@ -4,9 +4,7 @@ from application.services.candidate import CandidateManagementService
 from domain.entities.candidate import Candidate
 from domain.projections.candidate import CandidateProjection
 from domain.repositories.candidate import CandidateRepository
-from infrastructure.db.sqlalchemy.repositories.candidate_projection import (
-    SQLAlchemyCandidateProjectionRepository,
-)
+from infrastructure.db.sqlalchemy.projections import SQLAlchemyProjectionStore
 from infrastructure.db.sqlalchemy.repositories.event import SQLAlchemyEventRepository
 from infrastructure.db.sqlalchemy.uow import SQLAlchemyUnitOfWork
 from infrastructure.events.local.publisher import LocalEventPublisher
@@ -28,13 +26,13 @@ def candidate_repository(event_repository):
 
 
 @pytest.fixture
-def candidate_projection_repository(db_session):
-    return SQLAlchemyCandidateProjectionRepository(db_session)
+def projection_store(db_session):
+    return SQLAlchemyProjectionStore(db_session)
 
 
 @pytest.fixture
-def event_publisher(candidate_projection_repository, unit_of_work):
-    return LocalEventPublisher(unit_of_work, candidate_projection_repository)
+def event_publisher(projection_store, unit_of_work):
+    return LocalEventPublisher(unit_of_work, projection_store)
 
 
 @pytest.fixture
@@ -46,21 +44,21 @@ def candidate_service(unit_of_work, event_publisher, candidate_repository):
 
 @pytest.fixture
 def candidate_projection_factory():
-    def _candidate_projection_factory(repository, candidate_id):
+    def _candidate_projection_factory(store, candidate_id):
         projection = CandidateProjection(candidate_id)
-        repository.add(projection)
+        store.add(projection)
         return projection
 
     return _candidate_projection_factory
 
 
-def test_candidate_management_add(candidate_service, candidate_projection_repository):
+def test_candidate_management_add(candidate_service, projection_store):
     score = 88.0
     profile = {"test": 1}
 
     candidate = candidate_service.add(profile=profile, score=score)
 
-    projection = candidate_projection_repository.get(candidate.id)
+    projection = projection_store.get(CandidateProjection, candidate.id)
     assert candidate.status == Candidate.Status.ADDED
     assert candidate.score == score
     assert projection.status == Candidate.Status.ADDED
@@ -74,12 +72,10 @@ def test_candidate_management_move_to_standby(
     candidate_projection_factory,
     candidate_service,
     candidate_repository,
-    candidate_projection_repository,
+    projection_store,
 ):
     candidate = candidate_factory(repository=candidate_repository)
-    projection = candidate_projection_factory(
-        candidate_projection_repository, candidate.id
-    )
+    projection = candidate_projection_factory(projection_store, candidate.id)
 
     candidate = candidate_service.move_to_standby(candidate.id)
     assert candidate.status == Candidate.Status.STANDBY
@@ -92,12 +88,10 @@ def test_candidate_management_reject(
     candidate_projection_factory,
     candidate_service,
     candidate_repository,
-    candidate_projection_repository,
+    projection_store,
 ):
     candidate = candidate_factory(repository=candidate_repository)
-    projection = candidate_projection_factory(
-        candidate_projection_repository, candidate.id
-    )
+    projection = candidate_projection_factory(projection_store, candidate.id)
 
     candidate = candidate_service.reject(candidate.id)
 
@@ -111,12 +105,10 @@ def test_candidate_invite_when_score_exceed_thresh(
     candidate_projection_factory,
     candidate_service,
     candidate_repository,
-    candidate_projection_repository,
+    projection_store,
 ):
     candidate = candidate_factory(repository=candidate_repository)
-    projection = candidate_projection_factory(
-        candidate_projection_repository, candidate.id
-    )
+    projection = candidate_projection_factory(projection_store, candidate.id)
 
     candidate = candidate_service.invite(candidate.id)
 

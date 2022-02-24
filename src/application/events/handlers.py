@@ -3,13 +3,7 @@ from typing import Any, Dict, List
 
 from application.uow import UnitOfWork
 from domain.events.base import DomainEvent, SerializedEvent
-from domain.events.candidate import (
-    AddedCandidate,
-    InvitedCandidate,
-    MovedToStandbyCandidate,
-    RejectedCandidate,
-)
-from domain.repositories.candidate_projection import CandidateProjectionRepository
+from domain.projections.store import ProjectionStore
 
 logger = logging.getLogger(__name__)
 
@@ -25,11 +19,11 @@ class EventHandler:
         self,
         handlers: Dict[DomainEvent, Any],
         unit_of_work: UnitOfWork,
-        candidate_projection_repository: CandidateProjectionRepository,
+        projection_store: ProjectionStore,
     ):
         self._handlers = handlers
         self._unit_of_work = unit_of_work
-        self._candidate_projection_repository = candidate_projection_repository
+        self._projection_store = projection_store
 
     def handle(self, events: List[SerializedEvent]) -> None:
         """
@@ -41,14 +35,4 @@ class EventHandler:
             if not handler:
                 logger.info(f"Handler for {event} not found")
                 continue
-
-            if event["name"] not in (
-                AddedCandidate.name,
-                InvitedCandidate.name,
-                RejectedCandidate.name,
-                MovedToStandbyCandidate.name,
-            ):
-                logger.info(f"Cannot find repository for {event}")
-                continue
-            repository = self._candidate_projection_repository
-            handler(self._unit_of_work, repository, event)
+            handler(self._unit_of_work, self._projection_store, event)
